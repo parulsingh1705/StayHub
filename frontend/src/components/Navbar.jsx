@@ -7,7 +7,6 @@ import "../styles/Navbar.scss";
 import { Link, useNavigate } from "react-router-dom";
 import { setLogout } from "../redux/state";
 
-
 const Navbar = () => {
   const [dropdownMenu, setDropdownMenu] = useState(false);
 
@@ -15,9 +14,14 @@ const Navbar = () => {
 
   const dispatch = useDispatch();
 
-  const [search, setSearch] = useState("")
+  const [search, setSearch] = useState("");
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const handleSearch = () => {
+    if (search.trim() !== "") {
+      navigate(`/properties/search/${search}`);
+    }
+  };
 
   return (
     <div className="navbar">
@@ -28,15 +32,17 @@ const Navbar = () => {
       <div className="navbar_search">
         <input
           type="text"
-          placeholder="Search ..."
+          placeholder="Search your dream stay.."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch();
+            }
+          }}
         />
         <IconButton disabled={search === ""}>
-          <Search
-            sx={{ color: variables.pinkred }}
-            onClick={() => {navigate(`/properties/search/${search}`)}}
-          />
+          <Search sx={{ color: variables.pinkred }} onClick={handleSearch} />
         </IconButton>
       </div>
 
@@ -62,7 +68,7 @@ const Navbar = () => {
             <img
               src={`http://localhost:3001/${user.profileImagePath.replace(
                 "public",
-                ""
+                "",
               )}`}
               alt="profile photo"
               style={{ objectFit: "cover", borderRadius: "50%" }}
