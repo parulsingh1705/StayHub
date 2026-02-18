@@ -20,7 +20,7 @@ const ListingDetails = () => {
   const getListingDetails = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/properties/${listingId}`,
+        `https://stayhub-backend-ezhs.onrender.com/properties/${listingId}`,
         {
           method: "GET",
         }
@@ -83,7 +83,7 @@ const ListingDetails = () => {
         totalPrice: listing.price * dayCount,
       }
 
-      const response = await fetch("http://localhost:3001/bookings/create", {
+      const response = await fetch("https://stayhub-backend-ezhs.onrender.com/bookings/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -115,7 +115,7 @@ const ListingDetails = () => {
           {listing?.listingPhotoPaths?.map((photo, index) => (
             <img
               key={index}
-              src={`http://localhost:3001/${photo.includes("uploads")
+              src={`https://stayhub-backend-ezhs.onrender.com/${photo.includes("uploads")
                   ? photo.replace("public\\", "").replaceAll("\\", "/")
                   : `uploads/${photo}`
                 }`}
@@ -139,7 +139,7 @@ const ListingDetails = () => {
 
         <div className="profile">
           <img
-            src={`http://localhost:3001/${listing.creator.profileImagePath.replace(
+            src={`https://stayhub-backend-ezhs.onrender.com/${listing.creator.profileImagePath.replace(
               "public",
               ""
             )}`}
