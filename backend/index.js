@@ -2,7 +2,6 @@ const express = require("express");
 require("dotenv").config();
 const app = express();
 const mongoose = require("mongoose");
-const dotenv = require("dotenv").config();
 const cors = require("cors");
 const path = require("path");
 
@@ -25,7 +24,8 @@ app.use("/bookings", bookingRoutes)
 app.use("/users", userRoutes)
 
 /* MONGOOSE SETUP */
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
+
 mongoose
   .connect(process.env.MONGO_URL, {
     dbName: "StayHub",

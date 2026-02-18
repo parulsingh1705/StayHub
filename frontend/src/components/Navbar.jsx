@@ -28,14 +28,20 @@ const Navbar = () => {
       <div className="navbar_search">
         <input
           type="text"
-          placeholder="Search ..."
+          placeholder="Search your dream stay..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && search !== "") {
+              navigate(`/properties/search/${search}`);
+            }
+          }}
         />
+
         <IconButton disabled={search === ""}>
           <Search
             sx={{ color: variables.pinkred }}
-            onClick={() => {navigate(`/properties/search/${search}`)}}
+            onClick={() => { navigate(`/properties/search/${search}`) }}
           />
         </IconButton>
       </div>
