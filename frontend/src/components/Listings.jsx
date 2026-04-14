@@ -18,8 +18,8 @@ const Listings = () => {
     try {
       const response = await fetch(
         selectedCategory !== "All"
-          ? `https://stayhub-backend-ezhs.onrender.com/properties?category=${selectedCategory}`
-          : "https://stayhub-backend-ezhs.onrender.com/properties",
+          ? `https://stayhub-backend-9pns.onrender.com/properties?category=${selectedCategory}`
+          : "https://stayhub-backend-9pns.onrender.com/properties",
         {
           method: "GET",
         }

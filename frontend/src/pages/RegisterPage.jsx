@@ -45,7 +45,7 @@ const RegisterPage = () => {
       const registerForm = new FormData();
       for (const key in formData) registerForm.append(key, formData[key]);
 
-      const response = await fetch("https://stayhub-backend-ezhs.onrender.com/auth/register", {
+      const response = await fetch("https://stayhub-backend-9pns.onrender.com/auth/register", {
         method: "POST",
         body: registerForm,
       });

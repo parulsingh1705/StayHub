@@ -17,7 +17,7 @@ const TripList = () => {
   const getTripList = async () => {
     try {
       const response = await fetch(
-        `https://stayhub-backend-ezhs.onrender.com/users/${userId}/trips`,
+        `https://stayhub-backend-9pns.onrender.com/users/${userId}/trips`,
         {
           method: "GET",
         }

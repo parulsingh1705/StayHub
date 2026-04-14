@@ -17,7 +17,7 @@ const SearchPage = () => {
 
   const getSearchListings = async () => {
     try {
-      const response = await fetch(`https://stayhub-backend-ezhs.onrender.com/properties/search/${search}`, {
+      const response = await fetch(`https://stayhub-backend-9pns.onrender.com/properties/search/${search}`, {
         method: "GET"
       })
 

@@ -66,7 +66,7 @@ const Navbar = () => {
             <Person sx={{ color: variables.darkgrey }} />
           ) : (
             <img
-              src={`https://stayhub-backend-ezhs.onrender.com/${user.profileImagePath.replace(
+              src={`https://stayhub-backend-9pns.onrender.com/${user.profileImagePath.replace(
                 "public",
                 ""
               )}`}

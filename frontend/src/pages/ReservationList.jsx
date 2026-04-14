@@ -17,7 +17,7 @@ const ReservationList = () => {
   const getReservationList = async () => {
     try {
       const response = await fetch(
-        `https://stayhub-backend-ezhs.onrender.com/users/${userId}/reservations`,
+        `https://stayhub-backend-9pns.onrender.com/users/${userId}/reservations`,
         {
           method: "GET",
         }

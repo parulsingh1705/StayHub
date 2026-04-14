@@ -55,7 +55,7 @@ const ListingCard = ({
       if (!user) return;
 
       const response = await fetch(
-        `https://stayhub-backend-ezhs.onrender.com/users/${user._id}/${listingId}`,
+        `https://stayhub-backend-9pns.onrender.com/users/${user._id}/${listingId}`,
         {
           method: "PATCH",
           headers: {
@@ -88,7 +88,7 @@ const ListingCard = ({
           {listingPhotoPaths?.map((photo, index) => (
             <div key={index} className="slide">
               <img
-                src={`https://stayhub-backend-ezhs.onrender.com/${photo.includes("uploads")
+                src={`https://stayhub-backend-9pns.onrender.com/${photo.includes("uploads")
                     ? photo.replace("public\\", "").replaceAll("\\", "/")
                     : `uploads/${photo}`
                   }`}
