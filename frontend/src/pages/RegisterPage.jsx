@@ -10,6 +10,7 @@ const RegisterPage = () => {
     password: "",
     confirmPassword: "",
     profileImage: null,
+    location: ""
   });
   const [passwordMatch, setPasswordMatch] = useState(true);
   const [imageError, setImageError] = useState(false);
@@ -73,11 +74,15 @@ const RegisterPage = () => {
           <input placeholder="Confirm Password" name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} required />
           {!passwordMatch && <p style={{ color: "red" }}>Passwords do not match!</p>}
 
+
           <input id="image" type="file" name="profileImage" accept="image/*" style={{ display: "none" }} onChange={handleChange} />
+
+
           <label htmlFor="image">
             <img src="/assets/addImage.png" alt="Add" />
             <p>Upload Your Photo</p>
           </label>
+
           {imageError && <p style={{ color: "red" }}>Please upload a profile image</p>}
           {formData.profileImage && <img src={URL.createObjectURL(formData.profileImage)} alt={formData.profileImage.name} style={{ maxWidth: "80px" }} />}
           <button type="submit" disabled={!passwordMatch || !formData.profileImage}>REGISTER</button>

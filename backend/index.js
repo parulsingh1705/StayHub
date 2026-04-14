@@ -27,11 +27,11 @@ app.use("/users", userRoutes)
 const PORT = process.env.PORT || 3001;
 
 mongoose
-  .connect(process.env.MONGO_URL, {
-    dbName: "StayHub",
-  })
+  .connect(process.env.MONGO_URL, { dbName: "StayHub" })
   .then(() => {
     console.log("MongoDB connected");
-    app.listen(3001, () => console.log("Server running on port 3001"));
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
   })
-  .catch(err => console.error(err));
+  .catch((err) => console.error("MongoDB error:", err));
