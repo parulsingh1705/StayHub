@@ -23,6 +23,10 @@ app.use("/properties", listingRoutes)
 app.use("/bookings", bookingRoutes)
 app.use("/users", userRoutes)
 
+app.get("/", (req, res) => {
+  res.send("StayHub backend is running");
+});
+
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 3001;
 
