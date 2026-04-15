@@ -11,7 +11,15 @@ const bookingRoutes = require("./routes/booking.js");
 const userRoutes = require("./routes/user.js");
 const reviewRoutes = require("./routes/review");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://stayhub-frontend-pscd.onrender.com",
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.static("public"));
 

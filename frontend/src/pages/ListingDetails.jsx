@@ -27,9 +27,13 @@ const ListingDetails = () => {
   let userId = null;
 
   try {
-    const persistedData = JSON.parse(localStorage.getItem("persist:root"));
-    const userData = persistedData?.user ? JSON.parse(persistedData.user) : null;
-    userId = userData?._id;
+    const rawData = localStorage.getItem("persist:root");
+
+    if (rawData) {
+      const persistedData = JSON.parse(rawData);
+      const userData = persistedData?.user ? JSON.parse(persistedData.user) : null;
+      userId = userData?._id;
+    }
   } catch (error) {
     console.error("User parse error:", error);
   }
@@ -134,8 +138,18 @@ const ListingDetails = () => {
   const handleSubmitReview = async (e) => {
     e.preventDefault();
 
+    console.log("userId:", userId);
+    console.log("listingId:", listingId);
+    console.log("rating:", rating);
+    console.log("comment:", comment);
+
     if (!userId) {
-      alert("Please login first to submit a review");
+      alert("User ID not found. Please login again.");
+      return;
+    }
+
+    if (!listingId) {
+      alert("Listing ID not found.");
       return;
     }
 
@@ -155,8 +169,8 @@ const ListingDetails = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            listingId,
             userId,
+            listingId,
             rating,
             comment,
           }),
@@ -164,13 +178,14 @@ const ListingDetails = () => {
       );
 
       const data = await response.json();
+      console.log("Review response:", data);
 
       if (!response.ok) {
         alert(data.message || "Failed to submit review");
         return;
       }
 
-      alert(data.message);
+      alert("Review submitted successfully");
       setComment("");
       setRating(5);
       fetchReviews();
@@ -198,11 +213,10 @@ const ListingDetails = () => {
           {listing?.listingPhotoPaths?.map((photo, index) => (
             <img
               key={index}
-              src={`https://stayhub-backend-9pns.onrender.com/${
-                photo.includes("uploads")
-                  ? photo.replace("public\\", "").replaceAll("\\", "/")
-                  : `uploads/${photo}`
-              }`}
+              src={`https://stayhub-backend-9pns.onrender.com/${photo.includes("uploads")
+                ? photo.replace("public\\", "").replaceAll("\\", "/")
+                : `uploads/${photo}`
+                }`}
               alt="listing"
             />
           ))}
