@@ -10,6 +10,8 @@ const listingRoutes = require("./routes/listing.js");
 const bookingRoutes = require("./routes/booking.js");
 const userRoutes = require("./routes/user.js");
 const reviewRoutes = require("./routes/review");
+const aiRoutes = require("./routes/ai");
+
 
 app.use(
   cors({
@@ -32,6 +34,7 @@ app.use("/properties", listingRoutes)
 app.use("/bookings", bookingRoutes)
 app.use("/users", userRoutes)
 app.use("/reviews", reviewRoutes);
+app.use("/ai", aiRoutes);
 
 app.get("/", (req, res) => {
   res.send("StayHub backend is running");

@@ -38,6 +38,7 @@ const CreateListing = () => {
   const [bedroomCount, setBedroomCount] = useState(1);
   const [bedCount, setBedCount] = useState(1);
   const [bathroomCount, setBathroomCount] = useState(1);
+  const [loadingAI, setLoadingAI] = useState(false);
 
   /* AMENITIES */
   const [amenities, setAmenities] = useState([]);
@@ -140,6 +141,46 @@ const CreateListing = () => {
       console.log("Publish Listing failed", err.message);
     }
   };
+
+  const generateDescription = async () => {
+    try {
+      setLoadingAI(true);
+
+      const response = await fetch(
+        "https://stayhub-backend-9pns.onrender.com/ai/generate-description",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: formData.title,
+            location: formData.city,
+            price: formData.price,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message);
+        return;
+      }
+
+      setFormData({
+        ...formData,
+        description: data.description,
+      });
+
+    } catch (error) {
+      console.error(error);
+      alert("AI failed");
+    } finally {
+      setLoadingAI(false);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -154,9 +195,8 @@ const CreateListing = () => {
             <div className="category-list">
               {categories?.map((item, index) => (
                 <div
-                  className={`category ${
-                    category === item.label ? "selected" : ""
-                  }`}
+                  className={`category ${category === item.label ? "selected" : ""
+                    }`}
                   key={index}
                   onClick={() => setCategory(item.label)}
                 >
@@ -368,9 +408,8 @@ const CreateListing = () => {
             <div className="amenities">
               {facilities?.map((item, index) => (
                 <div
-                  className={`facility ${
-                    amenities.includes(item.name) ? "selected" : ""
-                  }`}
+                  className={`facility ${amenities.includes(item.name) ? "selected" : ""
+                    }`}
                   key={index}
                   onClick={() => handleSelectAmenities(item.name)}
                 >
@@ -471,6 +510,23 @@ const CreateListing = () => {
                 onChange={handleChangeDescription}
                 required
               />
+
+              <button
+                type="button"
+                onClick={generateDescription}
+                style={{
+                  marginBottom: "10px",
+                  background: "#222",
+                  color: "white",
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                {loadingAI ? "Generating..." : "Generate AI Description"}
+              </button>
+
               <p>Description</p>
               <textarea
                 type="text"
