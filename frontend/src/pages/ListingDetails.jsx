@@ -359,9 +359,7 @@ const ListingDetails = () => {
                   }}
                 >
                   <p>
-                    <strong>
-                      {review.userId?.firstName} {review.userId?.lastName}
-                    </strong>
+                    <strong>User:</strong> {review.userId}
                   </p>
                   <p>
                     <strong>Rating:</strong> {review.rating} / 5
