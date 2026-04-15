@@ -144,6 +144,11 @@ const CreateListing = () => {
 
   const generateDescription = async () => {
     try {
+      if (!formDescription.title || !formLocation.city) {
+        alert("Please fill Title and City first");
+        return;
+      }
+
       setLoadingAI(true);
 
       const response = await fetch(
@@ -154,9 +159,9 @@ const CreateListing = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            title: formData.title,
-            location: formData.city,
-            price: formData.price,
+            title: formDescription.title,
+            location: formLocation.city,
+            price: formDescription.price,
           }),
         }
       );
@@ -164,17 +169,16 @@ const CreateListing = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message);
+        alert(data.message || "Failed to generate description");
         return;
       }
 
-      setFormData({
-        ...formData,
+      setFormDescription((prev) => ({
+        ...prev,
         description: data.description,
-      });
-
+      }));
     } catch (error) {
-      console.error(error);
+      console.error("AI error:", error);
       alert("AI failed");
     } finally {
       setLoadingAI(false);
