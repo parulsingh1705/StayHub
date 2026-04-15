@@ -9,13 +9,30 @@ import { DateRange } from "react-date-range";
 import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import { useSelector } from "react-redux";
-import Footer from "../components/Footer"
+import Footer from "../components/Footer";
 
 const ListingDetails = () => {
   const [loading, setLoading] = useState(true);
 
   const { listingId } = useParams();
   const [listing, setListing] = useState(null);
+
+  const [reviews, setReviews] = useState([]);
+  const [avgRating, setAvgRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [reviewLoading, setReviewLoading] = useState(false);
+
+  let userId = null;
+
+  try {
+    const persistedData = JSON.parse(localStorage.getItem("persist:root"));
+    const userData = persistedData?.user ? JSON.parse(persistedData.user) : null;
+    userId = userData?._id;
+  } catch (error) {
+    console.error("User parse error:", error);
+  }
 
   const getListingDetails = async () => {
     try {
@@ -34,12 +51,25 @@ const ListingDetails = () => {
     }
   };
 
+  const fetchReviews = async () => {
+    try {
+      const response = await fetch(
+        `https://stayhub-backend-9pns.onrender.com/reviews/${listingId}`
+      );
+      const data = await response.json();
+
+      setReviews(data.reviews || []);
+      setAvgRating(data.avgRating || 0);
+      setTotalReviews(data.totalReviews || 0);
+    } catch (error) {
+      console.error("Failed to fetch reviews:", error);
+    }
+  };
+
   useEffect(() => {
     getListingDetails();
+    fetchReviews();
   }, [listingId]);
-
-  console.log(listing)
-
 
   /* BOOKING CALENDAR */
   const [dateRange, setDateRange] = useState([
@@ -51,7 +81,6 @@ const ListingDetails = () => {
   ]);
 
   const handleSelect = (ranges) => {
-    // Update the selected date range when user makes a selection
     setDateRange([ranges.selection]);
   };
 
@@ -63,9 +92,9 @@ const ListingDetails = () => {
   );
 
   /* SUBMIT BOOKING */
-  const customerId = useSelector((state) => state?.user?._id)
+  const customerId = useSelector((state) => state?.user?._id);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     if (!customerId) {
@@ -81,23 +110,77 @@ const ListingDetails = () => {
         startDate: dateRange[0].startDate.toDateString(),
         endDate: dateRange[0].endDate.toDateString(),
         totalPrice: listing.price * dayCount,
-      }
+      };
 
-      const response = await fetch("https://stayhub-backend-9pns.onrender.com/bookings/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookingForm)
-      })
+      const response = await fetch(
+        "https://stayhub-backend-9pns.onrender.com/bookings/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(bookingForm),
+        }
+      );
 
       if (response.ok) {
-        navigate(`/${customerId}/trips`)
+        navigate(`/${customerId}/trips`);
       }
     } catch (err) {
-      console.log("Submit Booking Failed.", err.message)
+      console.log("Submit Booking Failed.", err.message);
     }
-  }
+  };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+
+    if (!userId) {
+      alert("Please login first to submit a review");
+      return;
+    }
+
+    if (!comment.trim()) {
+      alert("Please enter a comment");
+      return;
+    }
+
+    try {
+      setReviewLoading(true);
+
+      const response = await fetch(
+        "https://stayhub-backend-9pns.onrender.com/reviews",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            listingId,
+            userId,
+            rating,
+            comment,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Failed to submit review");
+        return;
+      }
+
+      alert(data.message);
+      setComment("");
+      setRating(5);
+      fetchReviews();
+    } catch (error) {
+      console.error("Submit review error:", error);
+      alert("Something went wrong while submitting review");
+    } finally {
+      setReviewLoading(false);
+    }
+  };
 
   return loading ? (
     <Loader />
@@ -115,21 +198,18 @@ const ListingDetails = () => {
           {listing?.listingPhotoPaths?.map((photo, index) => (
             <img
               key={index}
-              src={`https://stayhub-backend-9pns.onrender.com/${photo.includes("uploads")
+              src={`https://stayhub-backend-9pns.onrender.com/${
+                photo.includes("uploads")
                   ? photo.replace("public\\", "").replaceAll("\\", "/")
                   : `uploads/${photo}`
-                }`}
+              }`}
               alt="listing"
             />
           ))}
-
         </div>
 
-
-
         <h2>
-          {listing.type} in {listing.city}, {listing.province},{" "}
-          {listing.country}
+          {listing.type} in {listing.city}, {listing.province}, {listing.country}
         </h2>
         <p>
           {listing.guestCount} guests - {listing.bedroomCount} bedroom(s) -{" "}
@@ -199,6 +279,81 @@ const ListingDetails = () => {
                 BOOKING
               </button>
             </div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: "40px" }}>
+          <hr />
+          <h2>Reviews & Ratings</h2>
+
+          <p>
+            <strong>Average Rating:</strong> {avgRating} / 5
+          </p>
+          <p>
+            <strong>Total Reviews:</strong> {totalReviews}
+          </p>
+
+          <form
+            onSubmit={handleSubmitReview}
+            style={{ marginTop: "20px", marginBottom: "30px" }}
+          >
+            <div style={{ marginBottom: "10px" }}>
+              <label>
+                <strong>Rating: </strong>
+              </label>
+              <select
+                value={rating}
+                onChange={(e) => setRating(Number(e.target.value))}
+              >
+                <option value={1}>1</option>
+                <option value={2}>2</option>
+                <option value={3}>3</option>
+                <option value={4}>4</option>
+                <option value={5}>5</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: "10px" }}>
+              <textarea
+                placeholder="Write your review..."
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                rows="4"
+                style={{ width: "100%", padding: "10px" }}
+              />
+            </div>
+
+            <button type="submit" className="button" disabled={reviewLoading}>
+              {reviewLoading ? "Submitting..." : "Submit Review"}
+            </button>
+          </form>
+
+          <div>
+            {reviews.length === 0 ? (
+              <p>No reviews yet.</p>
+            ) : (
+              reviews.map((review) => (
+                <div
+                  key={review._id}
+                  style={{
+                    border: "1px solid #ddd",
+                    padding: "15px",
+                    borderRadius: "10px",
+                    marginBottom: "15px",
+                  }}
+                >
+                  <p>
+                    <strong>
+                      {review.userId?.firstName} {review.userId?.lastName}
+                    </strong>
+                  </p>
+                  <p>
+                    <strong>Rating:</strong> {review.rating} / 5
+                  </p>
+                  <p>{review.comment}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

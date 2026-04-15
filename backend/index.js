@@ -9,7 +9,7 @@ const authRoutes = require("./routes/auth.js");
 const listingRoutes = require("./routes/listing.js");
 const bookingRoutes = require("./routes/booking.js");
 const userRoutes = require("./routes/user.js");
-const reviewRoutes = require("./routes/review.js");
+const reviewRoutes = require("./routes/review");
 
 app.use(cors());
 app.use(express.json());
