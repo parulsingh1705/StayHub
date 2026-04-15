@@ -62,6 +62,8 @@ const ListingDetails = () => {
       );
       const data = await response.json();
 
+      console.log("Fetched reviews data:", data);
+
       setReviews(data.reviews || []);
       setAvgRating(data.avgRating || 0);
       setTotalReviews(data.totalReviews || 0);

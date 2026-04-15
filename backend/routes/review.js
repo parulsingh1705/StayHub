@@ -28,10 +28,22 @@ router.get("/:listingId", async (req, res) => {
   try {
     const reviews = await Review.find({
       listingId: req.params.listingId,
-    }).populate("userId");
+    }).populate("userId", "firstName lastName profileImagePath");
 
-    res.status(200).json(reviews);
+    const totalReviews = reviews.length;
+
+    const avgRating =
+      totalReviews === 0
+        ? 0
+        : reviews.reduce((sum, item) => sum + item.rating, 0) / totalReviews;
+
+    res.status(200).json({
+      reviews,
+      totalReviews,
+      avgRating: Number(avgRating.toFixed(1)),
+    });
   } catch (err) {
+    console.log("Review GET error:", err);
     res.status(500).json({ message: "Failed to fetch reviews" });
   }
 });
