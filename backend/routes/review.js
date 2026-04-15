@@ -18,9 +18,14 @@ router.post("/", async (req, res) => {
       existingReview.comment = comment;
       await existingReview.save();
 
+      const updatedReview = await Review.findById(existingReview._id).populate(
+        "userId",
+        "firstName lastName profileImagePath"
+      );
+
       return res.status(200).json({
         message: "Review updated successfully",
-        review: existingReview,
+        review: updatedReview,
       });
     }
 
@@ -33,9 +38,14 @@ router.post("/", async (req, res) => {
 
     await newReview.save();
 
+    const populatedReview = await Review.findById(newReview._id).populate(
+      "userId",
+      "firstName lastName profileImagePath"
+    );
+
     return res.status(201).json({
       message: "Review added successfully",
-      review: newReview,
+      review: populatedReview,
     });
   } catch (err) {
     console.log("Review POST error:", err);
@@ -50,7 +60,9 @@ router.get("/:listingId", async (req, res) => {
   try {
     const reviews = await Review.find({
       listingId: req.params.listingId,
-    }).sort({ createdAt: -1 });
+    })
+      .populate("userId", "firstName lastName profileImagePath")
+      .sort({ createdAt: -1 });
 
     const totalReviews = reviews.length;
 
@@ -68,6 +80,33 @@ router.get("/:listingId", async (req, res) => {
     console.log("Review GET error:", err);
     return res.status(500).json({
       message: err.message || "Failed to fetch reviews",
+    });
+  }
+});
+
+// DELETE REVIEW
+router.delete("/:reviewId", async (req, res) => {
+  try {
+    const { reviewId } = req.params;
+    const { userId } = req.body;
+
+    const review = await Review.findById(reviewId);
+
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    if (review.userId.toString() !== userId) {
+      return res.status(403).json({ message: "You can delete only your own review" });
+    }
+
+    await Review.findByIdAndDelete(reviewId);
+
+    return res.status(200).json({ message: "Review deleted successfully" });
+  } catch (err) {
+    console.log("Review DELETE error:", err);
+    return res.status(500).json({
+      message: err.message || "Failed to delete review",
     });
   }
 });

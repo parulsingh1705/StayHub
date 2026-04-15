@@ -24,6 +24,10 @@ const ListingDetails = () => {
   const [comment, setComment] = useState("");
   const [reviewLoading, setReviewLoading] = useState(false);
 
+  const renderStars = (value) => {
+    return "★".repeat(value) + "☆".repeat(5 - value);
+  };
+
   let userId = null;
 
   try {
@@ -60,6 +64,7 @@ const ListingDetails = () => {
       const response = await fetch(
         `https://stayhub-backend-9pns.onrender.com/reviews/${listingId}`
       );
+
       const data = await response.json();
 
       console.log("Fetched reviews data:", data);
@@ -67,6 +72,7 @@ const ListingDetails = () => {
       setReviews(data.reviews || []);
       setAvgRating(data.avgRating || 0);
       setTotalReviews(data.totalReviews || 0);
+
     } catch (error) {
       console.error("Failed to fetch reviews:", error);
     }
@@ -140,13 +146,8 @@ const ListingDetails = () => {
   const handleSubmitReview = async (e) => {
     e.preventDefault();
 
-    console.log("userId:", userId);
-    console.log("listingId:", listingId);
-    console.log("rating:", rating);
-    console.log("comment:", comment);
-
     if (!userId) {
-      alert("User ID not found. Please login again.");
+      alert("Please login first");
       return;
     }
 
@@ -180,14 +181,13 @@ const ListingDetails = () => {
       );
 
       const data = await response.json();
-      console.log("Review response:", data);
 
       if (!response.ok) {
         alert(data.message || "Failed to submit review");
         return;
       }
 
-      alert("Review submitted successfully");
+      alert(data.message);
       setComment("");
       setRating(5);
       fetchReviews();
@@ -196,6 +196,39 @@ const ListingDetails = () => {
       alert("Something went wrong while submitting review");
     } finally {
       setReviewLoading(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    if (!userId) {
+      alert("Please login first");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://stayhub-backend-9pns.onrender.com/reviews/${reviewId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Failed to delete review");
+        return;
+      }
+
+      alert(data.message);
+      fetchReviews();
+    } catch (error) {
+      console.error("Delete review error:", error);
+      alert("Something went wrong while deleting review");
     }
   };
 
@@ -298,6 +331,7 @@ const ListingDetails = () => {
           </div>
         </div>
 
+
         <div style={{ marginTop: "40px" }}>
           <hr />
           <h2>Reviews & Ratings</h2>
@@ -321,11 +355,11 @@ const ListingDetails = () => {
                 value={rating}
                 onChange={(e) => setRating(Number(e.target.value))}
               >
-                <option value={1}>1</option>
-                <option value={2}>2</option>
-                <option value={3}>3</option>
-                <option value={4}>4</option>
-                <option value={5}>5</option>
+                <option value={1}>1 - ★☆☆☆☆</option>
+                <option value={2}>2 - ★★☆☆☆</option>
+                <option value={3}>3 - ★★★☆☆</option>
+                <option value={4}>4 - ★★★★☆</option>
+                <option value={5}>5 - ★★★★★</option>
               </select>
             </div>
 
@@ -348,25 +382,57 @@ const ListingDetails = () => {
             {reviews.length === 0 ? (
               <p>No reviews yet.</p>
             ) : (
-              reviews.map((review) => (
-                <div
-                  key={review._id}
-                  style={{
-                    border: "1px solid #ddd",
-                    padding: "15px",
-                    borderRadius: "10px",
-                    marginBottom: "15px",
-                  }}
-                >
-                  <p>
-                    <strong>User:</strong> {review.userId}
-                  </p>
-                  <p>
-                    <strong>Rating:</strong> {review.rating} / 5
-                  </p>
-                  <p>{review.comment}</p>
-                </div>
-              ))
+              reviews.map((review) => {
+                const isMyReview =
+                  review.userId?._id === userId || review.userId === userId;
+
+                return (
+                  <div
+                    key={review._id}
+                    style={{
+                      border: "1px solid #ddd",
+                      padding: "15px",
+                      borderRadius: "10px",
+                      marginBottom: "15px",
+                    }}
+                  >
+                    <p>
+                      <strong>
+                        {review.userId?.firstName
+                          ? `${review.userId.firstName} ${review.userId.lastName || ""}`
+                          : "User"}
+                      </strong>
+                    </p>
+
+                    <p style={{ fontSize: "22px", margin: "8px 0" }}>
+                      {renderStars(Number(review.rating))}
+                    </p>
+
+                    <p>
+                      <strong>Rating:</strong> {review.rating} / 5
+                    </p>
+
+                    <p>{review.comment}</p>
+
+                    {isMyReview && (
+                      <button
+                        onClick={() => handleDeleteReview(review._id)}
+                        style={{
+                          marginTop: "10px",
+                          background: "#e53935",
+                          color: "white",
+                          border: "none",
+                          padding: "8px 14px",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Delete Review
+                      </button>
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
